@@ -13,14 +13,9 @@ public:
 };
 
 void Game::baseGenerate() {
-    std::vector<EndGame> KQk;
-    tableGenerate("KQk", KQk);
     
-    //std::vector<EndGame> KRk;
-    //tableGenerate("KRk", KRk);
-
-    //std::vector<EndGame> KQrk;
-    //tableGenerate("KQrk", KQrk);
+    std::vector<EndGame> vec;
+    tableGenerate("KQrk", vec);
 }
 
 void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
