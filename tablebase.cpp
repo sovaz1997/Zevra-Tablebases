@@ -28,6 +28,8 @@ void Game::baseGenerate() {
     uint64_t tested_positions = 0;
 
     int count_mates = 0;
+    
+    
     for(unsigned int i = 0; i < count_positions; ++i) {
         if(legal_pos[i]) {
             setupPositionFromBase(i, "KQk");
@@ -47,17 +49,22 @@ void Game::baseGenerate() {
         }
     }
 
-    for(unsigned int i = 0; i < count_positions; ++i) {
-        if(legal_pos[i] && !KQk[i].enable()) {
-            setupPositionFromBase(i, "KQk");
-            if(movesToMate(KQk, "KQk")) {
-                std::cout << i << "/" << count_positions << " ";
-                ++tested_positions;
+    bool changed = true;
+    while(changed) {
+        changed = false;
+        for(unsigned int i = 0; i < count_positions; ++i) {
+            if(legal_pos[i] && !KQk[i].enable()) {
+                setupPositionFromBase(i, "KQk");
+                if(movesToMate(KQk, "KQk")) {
+                    changed = true;
+                    std::cout << i << "/" << count_positions << " ";
+                    ++tested_positions;
 
-                if(KQk[i].getMovesToMate() < 0) {
-                    std::cout << "Black make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
-                } else if(KQk[i].getMovesToMate() > 0) {
-                    std::cout << "White make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
+                    if(KQk[i].getMovesToMate() < 0) {
+                        std::cout << "Black make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
+                    } else if(KQk[i].getMovesToMate() > 0) {
+                        std::cout << "White make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
+                    }
                 }
             }
         }
@@ -212,6 +219,8 @@ bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
 
     std::vector<TableMove> wins;
     std::vector<TableMove> loses;
+
+    int num_moves = 0;
     
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
         game_board.move(moveArray[0].moveArray[i]);
@@ -231,6 +240,8 @@ bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
             }
         }
 
+        ++num_moves;
+
         game_board.goBack();
     }
 
@@ -243,6 +254,10 @@ bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
         positions[index].setMovesToMate(abs(wins[0].mate) + 1, col);
 
     } else {
+        if(num_moves > loses.size()) {
+            return false;
+        }
+
         std::sort(loses.begin(), loses.end());
         std::reverse(loses.begin(), loses.end());
         uint64_t index = getIndex(mask);
