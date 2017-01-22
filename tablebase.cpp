@@ -31,18 +31,33 @@ void Game::baseGenerate() {
     for(unsigned int i = 0; i < count_positions; ++i) {
         if(legal_pos[i]) {
             setupPositionFromBase(i, "KQk");
-            std::cout << i << " " << getIndex("KQk") << std::endl;
-            if(checkMateTest()) {
+            if(checkMateTest() != 0) {
                 ++tested_positions;
                 ++count_mates;
 
                 KQk[i].setEnable();
-                if(game_board.whiteMove) {
+                if(checkMateTest() < 0) {
                     std::cout << "White in checkmate: " << game_board.getFen() << std::endl;
                     KQk[i].setMovesToMate(1, 1);
-                } else {
+                } else if(checkMateTest() > 0) {
                     std::cout << "Black in checkmate: " << game_board.getFen() << std::endl;
                     KQk[i].setMovesToMate(1, 0);
+                }
+            }
+        }
+    }
+
+    for(unsigned int i = 0; i < count_positions; ++i) {
+        if(legal_pos[i] && !KQk[i].enable()) {
+            setupPositionFromBase(i, "KQk");
+            if(movesToMate(KQk, "KQk")) {
+                std::cout << i << "/" << count_positions << " ";
+                ++tested_positions;
+
+                if(KQk[i].getMovesToMate() < 0) {
+                    std::cout << "Black make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
+                } else if(KQk[i].getMovesToMate() > 0) {
+                    std::cout << "White make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
                 }
             }
         }
@@ -145,7 +160,7 @@ bool Game::setupPositionFromBase(uint64_t position, std::string mask) {
     return true;
 }
 
-bool Game::checkMateTest() {
+int Game::checkMateTest() {
     game_board.bitBoardMoveGenerator(moveArray[0]);
     
    uint8_t color;
@@ -169,32 +184,38 @@ bool Game::checkMateTest() {
     }
 
     if(!num_of_moves && game_board.inCheck(color)) {
-        return true;
+        if(game_board.whiteMove) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
-    return false;
+    return 0;
 }
 
-int Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
+bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
     game_board.bitBoardMoveGenerator(moveArray[0]);
     
     uint8_t color;
+    bool col;
     int multiple = 1;
     
 	if(game_board.whiteMove) {
 		color = WHITE;
+        col = 0;
 	} else {
 		color = BLACK;
+        col = 1;
         multiple = -1;
 	}
 
     std::vector<TableMove> wins;
     std::vector<TableMove> loses;
-
-    //uint16_t num_of_moves = 0;
     
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
         game_board.move(moveArray[0].moveArray[i]);
+        
         if(game_board.inCheck(color)) {
             game_board.goBack();
             continue;
@@ -211,13 +232,22 @@ int Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
         }
 
         game_board.goBack();
-        //++num_of_moves;
     }
 
     if(wins.empty() && loses.empty()) {
         return false;
     } else if(!wins.empty()) {
         std::sort(wins.begin(), wins.end());
+        uint64_t index = getIndex(mask);
+        positions[index].setEnable();
+        positions[index].setMovesToMate(abs(wins[0].mate) + 1, col);
+
+    } else {
+        std::sort(loses.begin(), loses.end());
+        std::reverse(loses.begin(), loses.end());
+        uint64_t index = getIndex(mask);
+        positions[index].setEnable();
+        positions[index].setMovesToMate(abs(loses[0].mate) + 1, !col);
     }
 
     return true;
