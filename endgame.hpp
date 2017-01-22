@@ -14,6 +14,7 @@ public:
     uint32_t getToY();
     uint32_t getToX();
     int32_t getMovesToMate();
+    
     bool enable();
 
     void setFromY(uint32_t val);

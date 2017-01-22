@@ -130,6 +130,9 @@ public:
 
 	std::vector<EndGame3> KQk;
 	bool setupPositionFromBase(uint64_t position, std::string mask);
+	bool checkMateTest();
+	int movesToMate(std::vector<EndGame3>& positions, std::string mask);
+	uint64_t getIndex(std::string mask);
 };
 
 #endif
