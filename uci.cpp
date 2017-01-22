@@ -129,6 +129,9 @@ bool Game::uciHandler(std::string str) {
 					option.lmrEnable = false;
 				}
 			}
+		} else if(cmd[0] == "generate") {
+			std::cout << "generating..." << std::endl;
+			baseGenerate();
 		}
 
 		return true;

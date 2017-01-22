@@ -26,6 +26,7 @@
 #include "option.hpp"
 #include "pv.hpp"
 #include "extendedmove.hpp"
+#include "endgame.hpp"
 
 class Game {
 private:
@@ -123,6 +124,12 @@ public:
 	std::vector<BitMove> extractPV(int depth);
 
 	bool testMovePossible(BitMove move);
+
+	//tablebase functions
+	void baseGenerate();
+
+	std::vector<EndGame3> KQk;
+	bool setupPositionFromBase(uint64_t position, std::string mask);
 };
 
 #endif

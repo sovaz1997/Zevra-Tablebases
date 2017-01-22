@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -std=c++11 #-m64 -Wall -pedantic -O4 -march=native -flto -funroll-loops
-FILES = main.o game.o killer.o hash.o boardinfo.o point.o uci.o preparation.o printer.o search.o gamethread.o gameservices.o movegenerator.o timer.o goback.o figurecell.o bitmove.o movearray.o bitboard.o category.o magic.o option.o pv.o constants.o extendedmove.o eval.o endgame.o
+CFLAGS = -std=c++11 -m64 -Wall -pedantic -O4 -march=native -flto -funroll-loops
+FILES = main.o game.o killer.o hash.o boardinfo.o point.o uci.o preparation.o printer.o search.o gamethread.o gameservices.o movegenerator.o timer.o goback.o figurecell.o bitmove.o movearray.o bitboard.o category.o magic.o option.o pv.o constants.o extendedmove.o eval.o endgame.o tablebase.o
 NAME = zevra
 
 all: constants.hpp $(FILES)
@@ -44,6 +44,9 @@ gamethread.o: game.hpp gamethread.cpp
 
 gameservices.o: game.hpp gameservices.cpp
 	$(CC) $(CFLAGS) -c gameservices.cpp
+
+tablebase.o : game.hpp tablebase.cpp
+	$(CC) $(CFLAGS) -c tablebase.cpp
 
 timer.o: timer.hpp timer.cpp
 	$(CC) $(CFLAGS) -c timer.cpp

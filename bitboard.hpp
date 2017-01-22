@@ -50,7 +50,6 @@ private:
 	void clearCell(uint8_t y, uint8_t x);
 	void addFigure(uint8_t figure, uint8_t y, uint8_t x);
 	void fastClearCell(uint8_t y, uint8_t x);
-	void fastAddFigure(uint8_t figure, uint8_t y, uint8_t x);
 	void printBitBoard(uint64_t bit_board);
 	void magicNumberGenerator();
 	void magicInit();
@@ -71,6 +70,8 @@ private:
 	uint64_t rookMagicMask[8][8];
 	uint64_t bishopMagicMask[8][8];
 public:
+	void fastAddFigure(uint8_t figure, uint8_t y, uint8_t x);
+
 	BitBoard();
 	~BitBoard();
 
