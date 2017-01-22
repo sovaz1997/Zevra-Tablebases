@@ -229,6 +229,11 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
 
         uint64_t now_index = getIndex(mask);
 
+        if(now_index == UINT64_MAX) {
+            ++num_moves;
+            continue;
+        }
+
         if(positions[now_index].enable()) {
             if(multiple * positions[now_index].getMovesToMate() > 0) {
                 wins.push_back(TableMove(moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
@@ -255,7 +260,7 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
         positions[index].setToX(wins[0].move.toX);
 
     } else {
-        if(num_moves > loses.size()) {
+        if(num_moves > loses.size() || num_moves == 0) {
             return false;
         }
 
@@ -307,6 +312,7 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
         }
     }
 
+    int count_figures = 0;
     for(unsigned int y = 0; y < 8; ++y) {
         for(unsigned int x = 0; x < 8; ++x) {
            uint8_t figure = game_board.getFigure(y, x);
@@ -314,8 +320,13 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
            if(figure) {
                result += (y * 8 + x) * std::pow(64, factor[figure].top());
                factor[figure].pop();
+               ++count_figures;
            }
         }      
+    }
+
+    if(count_figures != mask.size()) {
+        return UINT64_MAX;
     }
 
     if(!game_board.whiteMove) {

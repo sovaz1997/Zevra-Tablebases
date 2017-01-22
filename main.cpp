@@ -107,6 +107,20 @@ bool is_input_available() {
 }
 
 int main() {
+	/*EndGame endGame;
+	endGame.setFromX(6);
+	endGame.setFromY(5);
+	endGame.setToX(4);
+	endGame.setToY(1);
+	endGame.setMovesToMate(600, 0);
+	endGame.setEnable();
+	std::cout << endGame.getFromX() << std::endl;
+	std::cout << endGame.getFromY() << std::endl;
+	std::cout << endGame.getToX() << std::endl;
+	std::cout << endGame.getToY() << std::endl;
+	std::cout << endGame.getMovesToMate() << std::endl;
+	std::cout << endGame.enable() << std::endl;*/
+	
 	Game* game = new Game();
 	game->startGame();
 	delete game;
