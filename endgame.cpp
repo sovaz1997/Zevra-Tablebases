@@ -23,9 +23,15 @@ uint32_t EndGame3::getToX() {
 }
 
 int32_t EndGame3::getMovesToMate() {
-    int32_t result = ((31 << 15) & data) >> 15;
+    /*int32_t result = ((31 << 15) & data) >> 15;
 
     if(data & (1 << 9)) {
+        return -result;
+    }*/
+
+    int32_t result = ((2047 << 2) & data) >> 2;
+
+    if(data & (1 << 1)) {
         return -result;
     }
 
@@ -58,12 +64,21 @@ void EndGame3::setToX(uint32_t val) {
 }
 
 void EndGame3::setMovesToMate(uint32_t moves, uint32_t color) {
-    uint32_t mask = 63;
+    /*uint32_t mask = 63;
     mask <<= 14;
     data &= (~mask);
 
     moves <<= 15;
     color <<= 9;
+
+    data |= (moves | color);*/
+
+    uint32_t mask = 4095;
+    mask <<= 1;
+    data &= (~mask);
+
+    moves <<= 2;
+    color <<= 1;
 
     data |= (moves | color);
 
