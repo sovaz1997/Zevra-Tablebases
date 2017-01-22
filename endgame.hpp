@@ -1,6 +1,7 @@
 #ifndef ENDGAME_HPP
 #define ENDGAME_HPP
 
+#include <iostream>
 #include <cstdint>
 
 class EndGame3 {

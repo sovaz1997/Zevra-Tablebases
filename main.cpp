@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "bitboard.hpp"
+#include "endgame.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
 	#include <windows.h>
@@ -106,7 +107,21 @@ bool is_input_available() {
 }
 
 int main() {
-        Game* game = new Game();
-        game->startGame();
-        delete game;
+	/*EndGame3 endGame;
+	endGame.setFromX(6);
+	endGame.setFromY(5);
+	endGame.setToX(4);
+	endGame.setToY(1);
+	endGame.setMovesToMate(6, 0);
+	endGame.setEnable();
+	std::cout << endGame.getFromX() << std::endl;
+	std::cout << endGame.getFromY() << std::endl;
+	std::cout << endGame.getToX() << std::endl;
+	std::cout << endGame.getToY() << std::endl;
+	std::cout << endGame.getMovesToMate() << std::endl;
+	std::cout << endGame.enable() << std::endl;*/
+	
+	Game* game = new Game();
+	game->startGame();
+	delete game;
 }
