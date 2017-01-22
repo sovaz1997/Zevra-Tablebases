@@ -319,7 +319,7 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
     }
 
     if(!game_board.whiteMove) {
-        return result + std::pow(2, 6 * mask.size());
+        return result + std::pow(2, 12 * mask.size());
     }
 
     return result;
