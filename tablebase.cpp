@@ -13,14 +13,25 @@ public:
 };
 
 void Game::baseGenerate() {
-    uint64_t count_positions = 2*64*64*64;
-    KQk = std::vector<EndGame3>(count_positions);
+    std::vector<EndGame3> KQk;
+    tableGenerate("KQk", KQk);
+    
+    //std::vector<EndGame3> KRk;
+    //tableGenerate("KRk", KRk);
+
+    //std::vector<EndGame3> KQrk;
+    //tableGenerate("KQrk", KQrk);
+}
+
+void Game::tableGenerate(std::string mask, std::vector<EndGame3>& result) {
+    uint64_t count_positions = 2 * pow(64, mask.size());
+    result = std::vector<EndGame3>(count_positions);
     std::vector<uint8_t> legal_pos(count_positions, false);
 
     uint64_t counter = 0;
 
     for(unsigned int i = 0; i < count_positions; ++i) {
-        bool legal = setupPositionFromBase(i, "KQk");
+        bool legal = setupPositionFromBase(i, mask);
         legal_pos[i] = legal;
         counter += legal;
     }
@@ -32,18 +43,18 @@ void Game::baseGenerate() {
     
     for(unsigned int i = 0; i < count_positions; ++i) {
         if(legal_pos[i]) {
-            setupPositionFromBase(i, "KQk");
+            setupPositionFromBase(i, mask);
             if(checkMateTest() != 0) {
                 ++tested_positions;
                 ++count_mates;
 
-                KQk[i].setEnable();
+                result[i].setEnable();
                 if(checkMateTest() < 0) {
                     std::cout << "White in checkmate: " << game_board.getFen() << std::endl;
-                    KQk[i].setMovesToMate(1, 1);
+                    result[i].setMovesToMate(1, 1);
                 } else if(checkMateTest() > 0) {
                     std::cout << "Black in checkmate: " << game_board.getFen() << std::endl;
-                    KQk[i].setMovesToMate(1, 0);
+                    result[i].setMovesToMate(1, 0);
                 }
             }
         }
@@ -53,41 +64,22 @@ void Game::baseGenerate() {
     while(changed) {
         changed = false;
         for(unsigned int i = 0; i < count_positions; ++i) {
-            if(legal_pos[i] && !KQk[i].enable()) {
-                setupPositionFromBase(i, "KQk");
-                if(movesToMate(KQk, "KQk")) {
+            if(legal_pos[i] && !result[i].enable()) {
+                setupPositionFromBase(i, mask);
+                if(movesToMate(result, mask)) {
                     changed = true;
                     std::cout << i << "/" << count_positions << " ";
                     ++tested_positions;
 
-                    if(KQk[i].getMovesToMate() < 0) {
-                        std::cout << "Black make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
-                    } else if(KQk[i].getMovesToMate() > 0) {
-                        std::cout << "White make checkmate in " << abs(KQk[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << std::endl;
+                    if(result[i].getMovesToMate() < 0) {
+                        std::cout << "Black make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToX() + '1') << std::endl;
+                    } else if(result[i].getMovesToMate() > 0) {
+                        std::cout << "White make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToX() + '1') << std::endl;
                     }
                 }
             }
         }
     }
-
-    /*for(unsigned int i = 0; i < count_positions; ++i) {
-        if(legal_pos[i]) {
-            setupPositionFromBase(i, "KQk");
-            if(checkMateTest()) {
-                ++tested_positions;
-                ++count_mates;
-
-                KQk[i].setEnable();
-                if(game_board.whiteMove) {
-                    std::cout << "White in checkmate: " << game_board.getFen() << std::endl;
-                    KQk[i].setMovesToMate(0, 1);
-                } else {
-                    std::cout << "Black in checkmate: " << game_board.getFen() << std::endl;
-                    KQk[i].setMovesToMate(0, 0);
-                }
-            }
-        }
-    }*/
 
     std::cout << "CheckMates: " << count_mates << std::endl;
 }
@@ -180,7 +172,7 @@ int Game::checkMateTest() {
     uint16_t num_of_moves = 0;
 
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
-        game_board.move(moveArray[0].moveArray[i]);
+        game_board.fastMove(moveArray[0].moveArray[i]);
         if(game_board.inCheck(color)) {
             game_board.goBack();
             continue;
@@ -223,7 +215,7 @@ bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
     int num_moves = 0;
     
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
-        game_board.move(moveArray[0].moveArray[i]);
+        game_board.fastMove(moveArray[0].moveArray[i]);
         
         if(game_board.inCheck(color)) {
             game_board.goBack();
@@ -252,6 +244,10 @@ bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
         uint64_t index = getIndex(mask);
         positions[index].setEnable();
         positions[index].setMovesToMate(abs(wins[0].mate) + 1, col);
+        positions[index].setFromY(wins[0].move.fromY);
+        positions[index].setFromX(wins[0].move.fromX);
+        positions[index].setToY(wins[0].move.toY);
+        positions[index].setToX(wins[0].move.toX);
 
     } else {
         if(num_moves > loses.size()) {
@@ -263,6 +259,11 @@ bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
         uint64_t index = getIndex(mask);
         positions[index].setEnable();
         positions[index].setMovesToMate(abs(loses[0].mate) + 1, !col);
+
+        positions[index].setFromY(loses[0].move.fromY);
+        positions[index].setFromX(loses[0].move.fromX);
+        positions[index].setToY(loses[0].move.toY);
+        positions[index].setToX(loses[0].move.toX);
     }
 
     return true;
