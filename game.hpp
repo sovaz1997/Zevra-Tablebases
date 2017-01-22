@@ -130,10 +130,10 @@ public:
 
 	bool setupPositionFromBase(uint64_t position, std::string mask);
 	int checkMateTest();
-	bool movesToMate(std::vector<EndGame3>& positions, std::string mask);
+	bool movesToMate(std::vector<EndGame>& positions, std::string mask);
 	uint64_t getIndex(std::string mask);
 
-	void tableGenerate(std::string mask, std::vector<EndGame3>& result);
+	void tableGenerate(std::string mask, std::vector<EndGame>& result);
 };
 
 #endif

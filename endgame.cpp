@@ -1,28 +1,28 @@
 #include "endgame.hpp"
 
-EndGame3::EndGame3() : data(0) {}
+EndGame::EndGame() : data(0) {}
 
-uint32_t EndGame3::getFromY() {
+uint32_t EndGame::getFromY() {
     uint32_t mask = (1 << 31) | (1 << 30) | (1 << 29); 
     return (data & mask) >> 29;
 }
 
-uint32_t EndGame3::getFromX() {
+uint32_t EndGame::getFromX() {
     uint32_t mask = (1 << 28) | (1 << 27) | (1 << 26); 
     return (data & mask) >> 26;
 }
 
-uint32_t EndGame3::getToY() {
+uint32_t EndGame::getToY() {
     uint32_t mask = (1 << 25) | (1 << 24) | (1 << 23); 
     return (data & mask) >> 23;
 }
 
-uint32_t EndGame3::getToX() {
+uint32_t EndGame::getToX() {
     uint32_t mask = (1 << 22) | (1 << 21) | (1 << 20); 
     return (data & mask) >> 20;
 }
 
-int32_t EndGame3::getMovesToMate() {
+int32_t EndGame::getMovesToMate() {
     /*int32_t result = ((31 << 15) & data) >> 15;
 
     if(data & (1 << 9)) {
@@ -38,32 +38,32 @@ int32_t EndGame3::getMovesToMate() {
     return result;
 }
 
-bool EndGame3::enable() {
+bool EndGame::enable() {
     return (1 & data);
 }
 
 
-void EndGame3::setFromY(uint32_t val) {
+void EndGame::setFromY(uint32_t val) {
     uint32_t mask = ~(7 << 29);
     data = (data & mask) | (val << 29);
 }
 
-void EndGame3::setFromX(uint32_t val) {
+void EndGame::setFromX(uint32_t val) {
     uint32_t mask = ~(7 << 26);
     data = (data & mask) | (val << 26);
 }
 
-void EndGame3::setToY(uint32_t val) {
+void EndGame::setToY(uint32_t val) {
     uint32_t mask = ~(7 << 23);
     data = (data & mask) | (val << 23);
 }
 
-void EndGame3::setToX(uint32_t val) {
+void EndGame::setToX(uint32_t val) {
     uint32_t mask = ~(7 << 20);
     data = (data & mask) | (val << 20);
 }
 
-void EndGame3::setMovesToMate(uint32_t moves, uint32_t color) {
+void EndGame::setMovesToMate(uint32_t moves, uint32_t color) {
     /*uint32_t mask = 63;
     mask <<= 14;
     data &= (~mask);
@@ -84,7 +84,7 @@ void EndGame3::setMovesToMate(uint32_t moves, uint32_t color) {
 
 }
 
-void EndGame3::setEnable() {
+void EndGame::setEnable() {
     if(!enable()) {
         data |= 1;
     }

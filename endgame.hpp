@@ -4,10 +4,10 @@
 #include <iostream>
 #include <cstdint>
 
-class EndGame3 {
+class EndGame {
 public:
     uint32_t data;
-    EndGame3();
+    EndGame();
 
     uint32_t getFromY();
     uint32_t getFromX();

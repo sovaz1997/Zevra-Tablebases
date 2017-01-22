@@ -13,19 +13,21 @@ public:
 };
 
 void Game::baseGenerate() {
-    std::vector<EndGame3> KQk;
+    std::vector<EndGame> KQk;
     tableGenerate("KQk", KQk);
     
-    //std::vector<EndGame3> KRk;
+    //std::vector<EndGame> KRk;
     //tableGenerate("KRk", KRk);
 
-    //std::vector<EndGame3> KQrk;
+    //std::vector<EndGame> KQrk;
     //tableGenerate("KQrk", KQrk);
 }
 
-void Game::tableGenerate(std::string mask, std::vector<EndGame3>& result) {
+void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
+    FILE* file = fopen((mask + ".zev").c_str(), "wb");
+
     uint64_t count_positions = 2 * pow(64, mask.size());
-    result = std::vector<EndGame3>(count_positions);
+    result = std::vector<EndGame>(count_positions);
     std::vector<uint8_t> legal_pos(count_positions, false);
 
     uint64_t counter = 0;
@@ -72,9 +74,9 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame3>& result) {
                     ++tested_positions;
 
                     if(result[i].getMovesToMate() < 0) {
-                        std::cout << "Black make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToX() + '1') << std::endl;
+                        std::cout << "Black make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToY() + '1') << std::endl;
                     } else if(result[i].getMovesToMate() > 0) {
-                        std::cout << "White make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToX() + '1') << std::endl;
+                        std::cout << "White make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToY() + '1') << std::endl;
                     }
                 }
             }
@@ -82,6 +84,14 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame3>& result) {
     }
 
     std::cout << "CheckMates: " << count_mates << std::endl;
+
+    for(unsigned int i = 0; i < count_positions; ++i) {
+        fwrite(&result[i], sizeof(EndGame), 1, file);
+    }
+
+    fclose(file);
+
+    std::cout << "Success: " << mask << std::endl;
 }
 
 bool Game::setupPositionFromBase(uint64_t position, std::string mask) {
@@ -193,7 +203,7 @@ int Game::checkMateTest() {
     return 0;
 }
 
-bool Game::movesToMate(std::vector<EndGame3>& positions, std::string mask) {
+bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
     game_board.bitBoardMoveGenerator(moveArray[0]);
     
     uint8_t color;
