@@ -17,7 +17,7 @@
 #include "magic.hpp"
 
 class BitBoard {
-private:
+public:
 	uint64_t figures[7];
 	uint64_t horizontal[8];
 	uint64_t vertical[8];
@@ -58,6 +58,7 @@ private:
 	uint64_t magicGenerator();
 
 	std::deque<GoBack> history;
+	GoBack his;
 
 	bool wsc();
 	bool wlc();
@@ -85,7 +86,9 @@ public:
 	void move(BitMove& mv);
 	void fastMove(BitMove& mv);
 	void goBack();
+	void fastGoBack();
 	void pushHistory();
+	void fastPushHistory();
 	BitMove getRandomMove();
 	void makeNullMove();
 	void unMakeNullMove();

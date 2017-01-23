@@ -1216,9 +1216,8 @@ void BitBoard::move(BitMove& mv) {
 
 
 void BitBoard::fastMove(BitMove& mv) {
-	pushHistory();
+	fastPushHistory();
 	uint8_t movedFigure = getFigure(mv.fromY, mv.fromX);
-	attacked = false;
 
 	fastClearCell(mv.toY, mv.toX);
 	fastClearCell(mv.fromY, mv.fromX);
@@ -1270,20 +1269,6 @@ void BitBoard::fastMove(BitMove& mv) {
 	}
 
 	whiteMove = !whiteMove;
-	if(whiteMove) {
-		++moveNumber;
-	}
-
-	if(!mv.isAttack && (mv.movedFigure & TYPE_SAVE) != PAWN) {
-		++ruleNumber;
-	} else {
-		ruleNumber = 0;
-	}
-
-	if(mv.isAttack) {
-		attacked = true;
-	}
-
 	castlingMap &= (figures[KING] | figures[ROOK]);
 }
 
@@ -1310,6 +1295,21 @@ void BitBoard::goBack() {
 		blackPassantMade = history.front().blackPassantMade;
 		history.pop_front();
 	}
+}
+
+
+void BitBoard::fastGoBack() {
+	for(unsigned int i = 0; i < 7; ++i) {
+		figures[i] = his.figures[i];
+	}
+
+	white_bit_mask = his.white_bit_mask;
+	black_bit_mask = his.black_bit_mask;
+	castlingMap = his.castlingMap;
+	whiteMove = his.whiteMove;
+	passant_y = his.passant_y;
+	passant_x = his.passant_x;
+	passant_enable = his.passant_enable;
 }
 
 
@@ -1499,6 +1499,23 @@ void BitBoard::pushHistory() {
 	newHistory.whitePassantMade = whitePassantMade;
 	newHistory.blackPassantMade = blackPassantMade;
 	history.push_front(newHistory);
+}
+
+
+void BitBoard::fastPushHistory() {
+	//GoBack newHistory;
+
+	for(unsigned int i = 0; i < 7; ++i) {
+		his.figures[i] = figures[i];
+	}
+
+	his.white_bit_mask = white_bit_mask;
+	his.black_bit_mask = black_bit_mask;
+	his.whiteMove = whiteMove;
+	his.castlingMap = castlingMap;
+	his.passant_enable = passant_enable;
+	his.passant_x = passant_x;
+	his.passant_y = passant_y;
 }
 
 int64_t BitBoard::kingSecurity() {

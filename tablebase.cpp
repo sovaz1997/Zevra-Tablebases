@@ -2,23 +2,28 @@
 
 class TableMove {
 public:
-    BitMove move;
+    BitMove* move;
     int mate;
 
-    TableMove(BitMove _move, int _mate) : move(_move), mate(_mate) {}
+    TableMove(BitMove* _move, int _mate) : move(_move), mate(_mate) {}
     
-    bool operator<(TableMove& right) {
+    /*bool operator<(TableMove& right) {
         return mate < right.mate;
-    }
+    }*/
 };
 
 void Game::baseGenerate() {
     
     std::vector<EndGame> vec;
-    tableGenerate("KQrk", vec);
+    tableGenerate("KQk", vec);
+    //tableGenerate("KRk", vec);
+    //tableGenerate("kqH", vec);
+    //tableGenerate("krK", vec);
 }
 
 void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
+    uint64_t start_timer_gen = clock();
+
     FILE* file = fopen((mask + ".zev").c_str(), "wb");
 
     uint64_t count_positions = 2 * pow(64, mask.size());
@@ -87,6 +92,7 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
     fclose(file);
 
     std::cout << "Success: " << mask << std::endl;
+    std::cout << "Time: " << (clock() - start_timer_gen) / CLOCKS_PER_SEC << "s" << std::endl;
 }
 
 bool Game::setupPositionFromBase(uint64_t position, std::string mask) {
@@ -179,11 +185,11 @@ int Game::checkMateTest() {
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
         game_board.fastMove(moveArray[0].moveArray[i]);
         if(game_board.inCheck(color)) {
-            game_board.goBack();
+            game_board.fastGoBack();
             continue;
         }
 
-        game_board.goBack();
+        game_board.fastGoBack();
         ++num_of_moves;
     }
 
@@ -223,7 +229,7 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
         game_board.fastMove(moveArray[0].moveArray[i]);
         
         if(game_board.inCheck(color)) {
-            game_board.goBack();
+            game_board.fastGoBack();
             continue;
         }
 
@@ -236,44 +242,66 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
 
         if(positions[now_index].enable()) {
             if(multiple * positions[now_index].getMovesToMate() > 0) {
-                wins.push_back(TableMove(moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+                wins.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
             } else if(multiple * positions[now_index].getMovesToMate() < 0) {
-                loses.push_back(TableMove(moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+                loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
             }
         }
 
         ++num_moves;
 
-        game_board.goBack();
+        game_board.fastGoBack();
     }
 
     if(wins.empty() && loses.empty()) {
         return false;
     } else if(!wins.empty()) {
-        std::sort(wins.begin(), wins.end());
+        //std::sort(wins.begin(), wins.end());
+
+        int index_min = 0;
+        uint64_t min = UINT64_MAX;
+
+        for(unsigned int i = 0; i < wins.size(); ++i) {
+            if(wins[i].mate < min) {
+                min = wins[i].mate;
+                index_min = i;
+            }
+        }
+
         uint64_t index = getIndex(mask);
         positions[index].setEnable();
-        positions[index].setMovesToMate(abs(wins[0].mate) + 1, col);
-        positions[index].setFromY(wins[0].move.fromY);
-        positions[index].setFromX(wins[0].move.fromX);
-        positions[index].setToY(wins[0].move.toY);
-        positions[index].setToX(wins[0].move.toX);
+        positions[index].setMovesToMate(abs(wins[index_min].mate) + 1, col);
+        positions[index].setFromY(wins[index_min].move->fromY);
+        positions[index].setFromX(wins[index_min].move->fromX);
+        positions[index].setToY(wins[index_min].move->toY);
+        positions[index].setToX(wins[index_min].move->toX);
 
     } else {
         if(num_moves > loses.size() || num_moves == 0) {
             return false;
         }
 
-        std::sort(loses.begin(), loses.end());
-        std::reverse(loses.begin(), loses.end());
+        //std::sort(loses.begin(), loses.end());
+        //std::reverse(loses.begin(), loses.end());
+
+        int index_max = 0;
+        uint64_t max = 0;
+
+        for(unsigned int i = 0; i < loses.size(); ++i) {
+            if(loses[i].mate > max) {
+                max = loses[i].mate;
+                index_max = i;
+            }
+        }
+
         uint64_t index = getIndex(mask);
         positions[index].setEnable();
-        positions[index].setMovesToMate(abs(loses[0].mate) + 1, !col);
+        positions[index].setMovesToMate(abs(loses[index_max].mate) + 1, !col);
 
-        positions[index].setFromY(loses[0].move.fromY);
-        positions[index].setFromX(loses[0].move.fromX);
-        positions[index].setToY(loses[0].move.toY);
-        positions[index].setToX(loses[0].move.toX);
+        positions[index].setFromY(loses[index_max].move->fromY);
+        positions[index].setFromX(loses[index_max].move->fromX);
+        positions[index].setToY(loses[index_max].move->toY);
+        positions[index].setToX(loses[index_max].move->toX);
     }
 
     return true;
@@ -313,7 +341,20 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
     }
 
     int count_figures = 0;
-    for(unsigned int y = 0; y < 8; ++y) {
+
+    uint64_t board_mask = (game_board.white_bit_mask | game_board.black_bit_mask);
+
+    while(board_mask) {
+        short k = game_board.firstOne(board_mask);
+        board_mask &= ~game_board.vec1_cells[k];
+        uint8_t figure = game_board.getFigure(k / 8, k % 8);
+
+        result += k * std::pow(64, factor[figure].top());
+        factor[figure].pop();
+        ++count_figures;
+    }
+
+    /*for(unsigned int y = 0; y < 8; ++y) {
         for(unsigned int x = 0; x < 8; ++x) {
            uint8_t figure = game_board.getFigure(y, x);
 
@@ -323,7 +364,7 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
                ++count_figures;
            }
         }      
-    }
+    }*/
 
     if(count_figures != mask.size()) {
         return UINT64_MAX;
