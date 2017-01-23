@@ -13,7 +13,6 @@ public:
 };
 
 void Game::baseGenerate() {
-    
     std::vector<EndGame> vec;
     tableGenerate("KQk", vec);
     //tableGenerate("KRk", vec);
@@ -238,20 +237,32 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
 
         if(figures_count < mask.size()) {
             EndGame extract = extractEndGame();
-        }
 
-        uint64_t now_index = getIndex(mask);
+            if(extract.enable()) {
+                if(multiple * extract.getMovesToMate() > 0) {
+                    wins.push_back(TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate())));
+                } else if(multiple * extract.getMovesToMate() < 0) {
+                    loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate())));
+                }
+            } else {
+                game_board.fastGoBack();
+                continue;
+            }
+        } else {
 
-        if(now_index == UINT64_MAX) {
-            ++num_moves;
-            continue;
-        }
+            uint64_t now_index = getIndex(mask);
 
-        if(positions[now_index].enable()) {
-            if(multiple * positions[now_index].getMovesToMate() > 0) {
-                wins.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
-            } else if(multiple * positions[now_index].getMovesToMate() < 0) {
-                loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+            /*if(now_index == UINT64_MAX) {
+                ++num_moves;
+                continue;
+            }*/
+
+            if(positions[now_index].enable()) {
+                if(multiple * positions[now_index].getMovesToMate() > 0) {
+                    wins.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+                } else if(multiple * positions[now_index].getMovesToMate() < 0) {
+                    loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+                }
             }
         }
 
@@ -406,6 +417,8 @@ EndGame Game::extractEndGame() {
     std::string table;
     std::string tmp;
 
+    bool enable = false;
+
     while(entry = readdir(dir)) {
         tmp = entry->d_name;
 
@@ -423,12 +436,17 @@ EndGame Game::extractEndGame() {
            count_sym(tmp, 'p') == p) {
 
                table = tmp;
+               enable = true;
                break;
 
         }
     }
 
     closedir(dir);
+
+    if(!enable) {
+        return EndGame();
+    }
 
     FILE* file = fopen(table.c_str(), "rb");
 
