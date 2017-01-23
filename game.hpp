@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <stack>
 #include <memory.h>
+#include <dirent.h>
 #include "bitboard.hpp"
 #include "constants.hpp"
 #include "killer.hpp"
@@ -134,6 +135,9 @@ public:
 	uint64_t getIndex(std::string mask);
 
 	void tableGenerate(std::string mask, std::vector<EndGame>& result);
+	EndGame extractEndGame();
+
+	int count_sym(std::string str, char c);
 };
 
 #endif

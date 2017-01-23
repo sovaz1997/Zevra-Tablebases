@@ -233,6 +233,13 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
             continue;
         }
 
+
+        uint64_t figures_count = game_board.popcount64(game_board.white_bit_mask | game_board.black_bit_mask);
+
+        if(figures_count < mask.size()) {
+            EndGame extract = extractEndGame();
+        }
+
         uint64_t now_index = getIndex(mask);
 
         if(now_index == UINT64_MAX) {
@@ -374,5 +381,73 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
         return result + std::pow(2, 6 * mask.size());
     }
 
+    return result;
+}
+
+EndGame Game::extractEndGame() {
+    short K, Q, R, B, N, P, k, q, r, b, n, p;
+
+    K = game_board.popcount64(game_board.figures[KING] & game_board.white_bit_mask);
+    Q = game_board.popcount64(game_board.figures[QUEEN] & game_board.white_bit_mask);
+    R = game_board.popcount64(game_board.figures[ROOK] & game_board.white_bit_mask);
+    B = game_board.popcount64(game_board.figures[BISHOP] & game_board.white_bit_mask);
+    N = game_board.popcount64(game_board.figures[KNIGHT] & game_board.white_bit_mask);
+    P = game_board.popcount64(game_board.figures[PAWN] & game_board.white_bit_mask);
+
+    k = game_board.popcount64(game_board.figures[KING] & game_board.black_bit_mask);
+    q = game_board.popcount64(game_board.figures[QUEEN] & game_board.black_bit_mask);
+    r = game_board.popcount64(game_board.figures[ROOK] & game_board.black_bit_mask);
+    b = game_board.popcount64(game_board.figures[BISHOP] & game_board.black_bit_mask);
+    n = game_board.popcount64(game_board.figures[KNIGHT] & game_board.black_bit_mask);
+    p = game_board.popcount64(game_board.figures[PAWN] & game_board.black_bit_mask);
+
+    DIR* dir = opendir(".");
+    struct dirent* entry;
+    std::string table;
+    std::string tmp;
+
+    while(entry = readdir(dir)) {
+        tmp = entry->d_name;
+
+        if(count_sym(tmp, 'K') == K &&
+           count_sym(tmp, 'Q') == Q &&
+           count_sym(tmp, 'R') == R &&
+           count_sym(tmp, 'B') == B &&
+           count_sym(tmp, 'N') == N &&
+           count_sym(tmp, 'P') == P &&
+           count_sym(tmp, 'k') == k &&
+           count_sym(tmp, 'q') == q &&
+           count_sym(tmp, 'r') == r &&
+           count_sym(tmp, 'b') == b &&
+           count_sym(tmp, 'n') == n &&
+           count_sym(tmp, 'p') == p) {
+
+               table = tmp;
+               break;
+
+        }
+    }
+
+    closedir(dir);
+
+    FILE* file = fopen(table.c_str(), "rb");
+
+    std::string new_mask;
+    for(std::string::iterator it = table.begin(); it != table.end() && *it != '.'; ++it) {
+        new_mask.push_back(*it);
+    }
+
+    uint64_t index = getIndex(new_mask);
+    fseek(file, sizeof(EndGame) * index, SEEK_SET);
+
+    EndGame result;
+    fread(&result, sizeof(EndGame), 1, file);
+    fclose(file);
+    return result;
+}
+
+int Game::count_sym(std::string str, char c) {
+    int result = 0;
+    for(unsigned int i = 0; i < str.size(); ++i, result += (str[i] == c));
     return result;
 }
