@@ -14,7 +14,8 @@ public:
 
 void Game::baseGenerate() {
     std::vector<EndGame> vec;
-    tableGenerate("KQk", vec);
+    tableGenerate("KQkr", vec);
+    //tableGenerate("KQk", vec);
     //tableGenerate("KRk", vec);
     //tableGenerate("kqH", vec);
     //tableGenerate("krK", vec);
@@ -244,9 +245,6 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
                 } else if(multiple * extract.getMovesToMate() < 0) {
                     loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate())));
                 }
-            } else {
-                game_board.fastGoBack();
-                continue;
             }
         } else {
 
