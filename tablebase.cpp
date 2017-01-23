@@ -39,6 +39,7 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
 
     int count_mates = 0;
     
+    
     for(unsigned int i = 0; i < count_positions; ++i) {
         if(legal_pos[i]) {
             setupPositionFromBase(i, mask);
@@ -57,8 +58,6 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
             }
         }
     }
-
-    //KQkr_28630 - тестируемая позиция (мат в 1 ход, а не в 3)
 
     bool changed = true;
     while(changed) {
@@ -80,7 +79,6 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
             }
         }
     }
-
 
     std::cout << "CheckMates: " << count_mates << std::endl;
 
@@ -431,9 +429,11 @@ EndGame Game::extractEndGame() {
            count_sym(tmp, 'b') == b &&
            count_sym(tmp, 'n') == n &&
            count_sym(tmp, 'p') == p) {
+
                table = tmp;
                enable = true;
                break;
+
         }
     }
 
