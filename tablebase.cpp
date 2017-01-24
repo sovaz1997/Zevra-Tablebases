@@ -73,12 +73,15 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
                 setupPositionFromBase(i, mask);
                 if(movesToMate(result, mask)) {
                     changed = true;
-                    std::cout << i << "/" << count_positions << " ";
                     ++tested_positions;
 
+                    std::cout << counter - tested_positions << "left ";
+
                     if(result[i].getMovesToMate() < 0) {
+                        std::cout << i << "/" << count_positions << " ";
                         std::cout << "Black make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToY() + '1') << std::endl;
                     } else if(result[i].getMovesToMate() > 0) {
+                        std::cout << i << "/" << count_positions << " ";
                         std::cout << "White make checkmate in " << abs(result[i].getMovesToMate()) - 1 << ": " << game_board.getFen() << "; " << (char)(result[i].getFromX() + 'a') << (char)(result[i].getFromY() + '1') << (char)(result[i].getToX() + 'a') << (char)(result[i].getToY() + '1') << std::endl;
                     }
                 }
