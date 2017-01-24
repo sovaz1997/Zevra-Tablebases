@@ -3,6 +3,47 @@
 int64_t Game::negamax(BitBoard & b, int64_t alpha, int64_t beta, double depth, int real_depth, int rule, bool inNullMove) {
 	++nodesCounter;
 
+	if(b.popcount64(b.white_bit_mask | b.black_bit_mask) <= 4) {
+		EndGame endGame = extractEndGame();
+
+		if(endGame.enable()) {
+			bestMove = BitMove(b.getFigure(endGame.getFromY(), endGame.getFromX()), endGame.getFromY(), endGame.getFromX(), endGame.getToY(), endGame.getToX());
+			
+			if(b.whiteMove) {
+				if(endGame.getMovesToMate() > 0) {
+					bestScore = WHITE_WIN - (endGame.getMovesToMate() - 1);
+				} else if(endGame.getMovesToMate() < 0) {
+					bestScore = -WHITE_WIN + (endGame.getMovesToMate() - 1);
+				} else {
+					bestScore = 0;
+				}
+			} else {
+				if(endGame.getMovesToMate() < 0) {
+					bestScore = WHITE_WIN - (endGame.getMovesToMate() - 1);
+				} else if(endGame.getMovesToMate() > 0) {
+					bestScore = -WHITE_WIN + (endGame.getMovesToMate() - 1);
+				} else {
+					bestScore = 0;
+				}
+			}
+
+			if(real_depth == 0) {
+				std::cout << "info depth " << max_depth << " time " << (int)((clock() - start_timer) / (CLOCKS_PER_SEC / 1000)) << " nodes " << nodesCounter << " nps " << (int)(nodesCounter / ((clock() - start_timer) / CLOCKS_PER_SEC));
+				std::cout << " ";
+				printScore(bestScore);
+				std::cout << " pv ";
+				printPV(depth);
+			}
+
+			return bestScore;
+		}
+
+		if(endGame.getFromX() != 0 || endGame.getFromY() != 0 || endGame.getToX() != 0 || endGame.getToY() != 0) {
+			bestMove = BitMove(b.getFigure(endGame.getFromY(), endGame.getFromX()), endGame.getFromY(), endGame.getFromX(), endGame.getToY(), endGame.getToX());
+			return 0;
+		}
+	}
+
 	if(depth >= 5) {
 		if(is_input_available()) {
 			std::string input_str;
