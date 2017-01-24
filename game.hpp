@@ -16,6 +16,8 @@
 #include <algorithm>
 #include <stack>
 #include <memory.h>
+#include <unistd.h> 
+#include <sys/mman.h>
 #include <dirent.h>
 #include "bitboard.hpp"
 #include "constants.hpp"
@@ -144,10 +146,10 @@ public:
 
 	bool setupPositionFromBase(uint64_t position, std::string mask);
 	int checkMateTest();
-	bool movesToMate(std::vector<EndGame>& positions, std::string mask);
+	bool movesToMate(/*std::vector<EndGame>& positions*/EndGame* positions, std::string mask);
 	uint64_t getIndex(std::string mask);
 
-	void tableGenerate(std::string mask, std::vector<EndGame>& result);
+	void tableGenerate(std::string mask/*, std::vector<EndGame>& result*/);
 	EndGame extractEndGame();
 
 	int count_sym(std::string str, char c);

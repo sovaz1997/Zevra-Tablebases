@@ -2,21 +2,38 @@
 
 void Game::baseGenerate() {
     std::string fen = game_board.getFen();
-    std::vector<EndGame> vec;
-    tableGenerate("Kqk", vec);
-    tableGenerate("Krk", vec);
-    tableGenerate("kQK", vec);
-    tableGenerate("kRK", vec);
-    tableGenerate("KQkr", vec);
-    game_board.setFen(fen);
+    //std::vector<EndGame> vec;
+    tableGenerate("Kqk"/*, vec*/);
+    tableGenerate("Krk"/*, vec*/);
+    tableGenerate("kQK"/*, vec*/);
+    tableGenerate("kRK"/*, vec*/);
+    tableGenerate("KQkr"/*, vec*/);
+    //game_board.setFen(fen);
 }
 
-void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
+void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
 
-    FILE* file = fopen((mask + ".zev").c_str(), "wb");
-
+    FILE* file = fopen((mask + ".zev").c_str(), "ab+");
     uint64_t count_positions = 2 * pow(64, mask.size());
-    result = std::vector<EndGame>(count_positions);
+    
+    fseek(file, SEEK_END, 0);
+
+    if(ftell(file) < sizeof(EndGame) * count_positions) {
+        EndGame* tmp_buff = new EndGame[count_positions];
+        for(int i = 0; i < count_positions; ++i) {
+            tmp_buff[i] = EndGame();
+        }
+
+        fwrite(tmp_buff, count_positions, sizeof(EndGame), file);
+        free(tmp_buff);
+    }
+
+    fseek(file, SEEK_SET, 0);
+
+    EndGame* result = (EndGame*)mmap(NULL, sizeof(EndGame) * count_positions, PROT_READ | PROT_WRITE, MAP_SHARED, fileno(file), 0);
+
+
+    //result = std::vector<EndGame>(count_positions);
     std::vector<uint8_t> legal_pos(count_positions, false);
 
     uint64_t counter = 0;
@@ -207,7 +224,7 @@ int Game::checkMateTest() {
     return 0;
 }
 
-bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
+bool Game::movesToMate(EndGame* positions, std::string mask) {
     game_board.bitBoardMoveGenerator(moveArray[0]);
     
     uint8_t color;
