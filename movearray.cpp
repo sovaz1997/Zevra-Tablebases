@@ -17,3 +17,8 @@ void MoveArray::addMove(BitMove mv) {
 		++count;
 	}
 }
+
+
+void MoveArray::zip() {
+	moveArray.resize(count);
+}

@@ -121,6 +121,8 @@ int main() {
 	std::cout << endGame.getMovesToMate() << std::endl;
 	std::cout << endGame.enable() << std::endl;*/
 	
+	//std::cout << sizeof(BitMove);
+
 	Game* game = new Game();
 	game->startGame();
 	delete game;

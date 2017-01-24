@@ -29,6 +29,19 @@
 #include "extendedmove.hpp"
 #include "endgame.hpp"
 
+class TableMove {
+public:
+    BitMove* move;
+    int mate;
+
+	TableMove() {}
+    TableMove(BitMove* _move, int _mate) : move(_move), mate(_mate) {}
+    
+    /*bool operator<(TableMove& right) {
+        return mate < right.mate;
+    }*/
+};
+
 class Game {
 private:
 	BitBoard game_board;
@@ -138,6 +151,9 @@ public:
 	EndGame extractEndGame();
 
 	int count_sym(std::string str, char c);
+
+	std::vector<TableMove> wins;
+    std::vector<TableMove> loses;
 };
 
 #endif

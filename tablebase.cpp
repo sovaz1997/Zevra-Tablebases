@@ -1,17 +1,5 @@
 #include "game.hpp"
 
-class TableMove {
-public:
-    BitMove* move;
-    int mate;
-
-    TableMove(BitMove* _move, int _mate) : move(_move), mate(_mate) {}
-    
-    /*bool operator<(TableMove& right) {
-        return mate < right.mate;
-    }*/
-};
-
 void Game::baseGenerate() {
     std::string fen = game_board.getFen();
     std::vector<EndGame> vec;
@@ -32,6 +20,7 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
     std::vector<uint8_t> legal_pos(count_positions, false);
 
     uint64_t counter = 0;
+    
 
     for(unsigned int i = 0; i < count_positions; ++i) {
         bool legal = setupPositionFromBase(i, mask);
@@ -234,8 +223,7 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
         multiple = -1;
 	}
 
-    std::vector<TableMove> wins;
-    std::vector<TableMove> loses;
+    int wins_count = 0, loses_count = 0;
 
     int num_moves = 0;
     
@@ -255,9 +243,11 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
 
             if(extract.enable()) {
                 if(multiple * extract.getMovesToMate() > 0) {
-                    wins.push_back(TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate())));
+                    wins[wins_count] = TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate()));
+                    ++wins_count;
                 } else if(multiple * extract.getMovesToMate() < 0) {
-                    loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate())));
+                    loses[loses_count] = TableMove(&moveArray[0].moveArray[i], abs(extract.getMovesToMate()));
+                    ++loses_count;
                 }
             }
         } else {
@@ -270,9 +260,11 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
 
             if(positions[now_index].enable()) {
                 if(multiple * positions[now_index].getMovesToMate() > 0) {
-                    wins.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+                    wins[wins_count] = TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate()));
+                    ++wins_count;
                 } else if(multiple * positions[now_index].getMovesToMate() < 0) {
-                    loses.push_back(TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate())));
+                    loses[loses_count] = TableMove(&moveArray[0].moveArray[i], abs(positions[now_index].getMovesToMate()));
+                    ++loses_count;
                 }
             }
         }
@@ -282,15 +274,15 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
         game_board.goBack();
     }
 
-    if(wins.empty() && loses.empty()) {
+    if(!wins_count && !loses_count) {
         return false;
-    } else if(!wins.empty()) {
+    } else if(wins_count) {
         //std::sort(wins.begin(), wins.end());
 
         int index_min = 0;
         uint64_t min = UINT64_MAX;
 
-        for(unsigned int i = 0; i < wins.size(); ++i) {
+        for(unsigned int i = 0; i < wins_count; ++i) {
             if(wins[i].mate < min) {
                 min = wins[i].mate;
                 index_min = i;
@@ -305,7 +297,7 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
         positions[index].setToY(wins[index_min].move->toY);
         positions[index].setToX(wins[index_min].move->toX);
     } else {
-        if(num_moves > loses.size() || num_moves == 0) {
+        if(num_moves > loses_count || num_moves == 0) {
             return false;
         }
 
@@ -315,7 +307,7 @@ bool Game::movesToMate(std::vector<EndGame>& positions, std::string mask) {
         int index_max = 0;
         uint64_t max = 0;
 
-        for(unsigned int i = 0; i < loses.size(); ++i) {
+        for(unsigned int i = 0; i < loses_count; ++i) {
             if(loses[i].mate > max) {
                 max = loses[i].mate;
                 index_max = i;
