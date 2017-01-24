@@ -16,7 +16,7 @@ void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
     FILE* file = fopen((mask + ".zev").c_str(), "ab+");
     uint64_t count_positions = 2 * pow(64, mask.size());
     
-    fseek(file, SEEK_END, 0);
+    fseek(file, 0, SEEK_END);
 
     if(ftell(file) < sizeof(EndGame) * count_positions) {
         EndGame* tmp_buff = new EndGame[count_positions];
@@ -28,7 +28,7 @@ void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
         free(tmp_buff);
     }
 
-    fseek(file, SEEK_SET, 0);
+    fseek(file, 0, SEEK_SET);
 
     EndGame* result = (EndGame*)mmap(NULL, sizeof(EndGame) * count_positions, PROT_READ | PROT_WRITE, MAP_SHARED, fileno(file), 0);
 
