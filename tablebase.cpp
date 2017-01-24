@@ -24,7 +24,6 @@ void Game::baseGenerate() {
 }
 
 void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
-    uint64_t start_timer_gen = clock();
 
     FILE* file = fopen((mask + ".zev").c_str(), "wb");
 
@@ -65,6 +64,10 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
         }
     }
 
+    uint64_t start_timer_gen = clock();
+    uint64_t old_time = start_timer_gen;
+    uint64_t old_tested_positions = tested_positions;
+
     bool changed = true;
     while(changed) {
         changed = false;
@@ -75,7 +78,12 @@ void Game::tableGenerate(std::string mask, std::vector<EndGame>& result) {
                     changed = true;
                     ++tested_positions;
 
-                    std::cout << counter - tested_positions << "left ";
+                    std::cout << ((double)tested_positions / (double)counter) * 100 << "% " << ((clock() - old_time) / ((double)(tested_positions - old_tested_positions) / (double)counter) * (1 - (double)tested_positions / (double)counter)) / CLOCKS_PER_SEC << "s ";
+                    
+                    if(clock() - old_time >= 5 * CLOCKS_PER_SEC) {
+                        old_tested_positions = tested_positions;
+                        old_time = clock();
+                    }
 
                     if(result[i].getMovesToMate() < 0) {
                         std::cout << i << "/" << count_positions << " ";
