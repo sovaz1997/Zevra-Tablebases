@@ -99,7 +99,7 @@ public:
 	int64_t negamax_elementary(BitBoard & b, int64_t alpha, int64_t beta, int depth, int real_depth, int rule, bool inNullMove);
 	uint64_t perft(int depth);
 	bool insufficientMaterial(std::vector<uint64_t>figureMask);
-  int64_t quies(BitBoard & b, int64_t alpha, int64_t beta, int rule, int real_depth);
+  	int64_t quies(BitBoard & b, int64_t alpha, int64_t beta, int rule, int real_depth);
 	int startGame();
 	void printScore(double score);
 	std::string getScore(double score);

@@ -107,6 +107,8 @@ bool is_input_available() {
 }
 
 int main() {
+	std::cout << sizeof(BitMove) << std::endl;
+
 	/*EndGame endGame;
 	endGame.setFromX(6);
 	endGame.setFromY(5);

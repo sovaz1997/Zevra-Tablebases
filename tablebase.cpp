@@ -291,10 +291,6 @@ bool Game::movesToMate(EndGame* positions, std::string mask) {
     if(!wins_count && !loses_count) {
         return false;
     } else if(wins_count) {
-        /*if(num_moves > (wins_count + loses_count) || num_moves == 0) {
-            return false;
-        }*/
-
         int index_min = 0;
         uint64_t min = UINT64_MAX;
 
