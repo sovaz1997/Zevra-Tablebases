@@ -2,13 +2,13 @@
 
 void Game::baseGenerate() {
     std::string fen = game_board.getFen();
-    //std::vector<EndGame> vec;
-    tableGenerate("Kqk"/*, vec*/);
-    tableGenerate("Krk"/*, vec*/);
-    tableGenerate("kQK"/*, vec*/);
-    tableGenerate("kRK"/*, vec*/);
-    tableGenerate("KQkr"/*, vec*/);
-    //game_board.setFen(fen);
+    tableGenerate("KQk");
+    /*tableGenerate("kqK");
+    tableGenerate("KRk");
+    tableGenerate("krK");
+    tableGenerate("KQkr");*/
+   
+    game_board.setFen(fen);
 }
 
 void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
@@ -32,8 +32,6 @@ void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
 
     EndGame* result = (EndGame*)mmap(NULL, sizeof(EndGame) * count_positions, PROT_READ | PROT_WRITE, MAP_SHARED, fileno(file), 0);
 
-
-    //result = std::vector<EndGame>(count_positions);
     std::vector<uint8_t> legal_pos(count_positions, false);
 
     uint64_t counter = 0;
@@ -51,7 +49,7 @@ void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
     
     
     for(unsigned int i = 0; i < count_positions; ++i) {
-        if(legal_pos[i]) {
+        if(legal_pos[i] && !result[i].enable()) {
             setupPositionFromBase(i, mask);
             if(checkMateTest() != 0) {
                 ++tested_positions;
@@ -203,13 +201,13 @@ int Game::checkMateTest() {
     uint16_t num_of_moves = 0;
 
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
-        game_board.move(moveArray[0].moveArray[i]);
+        game_board.fastMove(moveArray[0].moveArray[i]);
         if(game_board.inCheck(color)) {
-            game_board.goBack();
+            game_board.fastGoBack();
             continue;
         }
 
-        game_board.goBack();
+        game_board.fastGoBack();
         ++num_of_moves;
     }
 
@@ -245,17 +243,17 @@ bool Game::movesToMate(EndGame* positions, std::string mask) {
     int num_moves = 0;
     
     for(unsigned int i = 0; i < moveArray[0].count; ++i) {
-        game_board.move(moveArray[0].moveArray[i]);
+        game_board.fastMove(moveArray[0].moveArray[i]);
         
         if(game_board.inCheck(color)) {
-            game_board.goBack();
+            game_board.fastGoBack();
             continue;
         }
 
 
         uint64_t figures_count = game_board.popcount64(game_board.white_bit_mask | game_board.black_bit_mask);
 
-        if(figures_count < mask.size()) {
+        if(figures_count < mask.size()/* || !game_board.popcount64(game_board.figures[WHITE | PAWN])*/) {
             EndGame extract = extractEndGame();
 
             if(extract.enable()) {
@@ -270,10 +268,9 @@ bool Game::movesToMate(EndGame* positions, std::string mask) {
         } else {
             uint64_t now_index = getIndex(mask);
 
-            /*if(now_index == UINT64_MAX) {
-                ++num_moves;
+            if(now_index == UINT64_MAX) {
                 continue;
-            }*/
+            }
 
             if(positions[now_index].enable()) {
                 if(multiple * positions[now_index].getMovesToMate() > 0) {
@@ -288,13 +285,15 @@ bool Game::movesToMate(EndGame* positions, std::string mask) {
 
         ++num_moves;
 
-        game_board.goBack();
+        game_board.fastGoBack();
     }
 
     if(!wins_count && !loses_count) {
         return false;
     } else if(wins_count) {
-        //std::sort(wins.begin(), wins.end());
+        /*if(num_moves > (wins_count + loses_count) || num_moves == 0) {
+            return false;
+        }*/
 
         int index_min = 0;
         uint64_t min = UINT64_MAX;
@@ -385,9 +384,11 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
         board_mask &= ~game_board.vec1_cells[k];
         uint8_t figure = game_board.getFigure(k / 8, k % 8);
 
-        result += k * std::pow(64, factor[figure].top());
-        factor[figure].pop();
-        ++count_figures;
+        if(!factor[figure].empty()) {
+            result += k * std::pow(64, factor[figure].top());
+            factor[figure].pop();
+            ++count_figures;
+        }
     }
 
     /*for(unsigned int y = 0; y < 8; ++y) {

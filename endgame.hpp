@@ -23,7 +23,8 @@ public:
     void setToX(uint32_t val);
     void setMovesToMate(uint32_t moves, uint32_t color); //0 - WHITE
     void setEnable();
-    
+    void setDisable();
+
 };
 
 #endif

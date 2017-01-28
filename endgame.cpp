@@ -89,3 +89,9 @@ void EndGame::setEnable() {
         data |= 1;
     }
 }
+
+void EndGame::setDisable() {
+    if(enable()) {
+        data &= (uint64_t)~1;
+    }
+}
