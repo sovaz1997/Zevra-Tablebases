@@ -156,6 +156,8 @@ public:
 
 	std::vector<TableMove> wins;
     std::vector<TableMove> loses;
+
+	std::stack<uint8_t> factor[32];
 };
 
 #endif

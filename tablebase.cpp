@@ -77,6 +77,9 @@ void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
         changed = false;
         for(unsigned int i = 0; i < count_positions; ++i) {
             if(legal_pos[i] && !result[i].enable()) {
+                /*if(i > 20000) {
+                    exit(0);
+                }*/
                 setupPositionFromBase(i, mask);
                 if(movesToMate(result, mask)) {
                     changed = true;
@@ -340,8 +343,6 @@ bool Game::movesToMate(EndGame* positions, std::string mask) {
 
 uint64_t Game::getIndex(std::string mask) { //в расчете на то, что совместна позиция и маска
     uint64_t result = 0;
-
-    std::stack<uint8_t> factor[32];
 
     for(int i = 0; i < mask.size(); ++i) {
         if(mask[i] == 'K') {
