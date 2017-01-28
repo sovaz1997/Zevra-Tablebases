@@ -3,10 +3,10 @@
 void Game::baseGenerate() {
     std::string fen = game_board.getFen();
     tableGenerate("KQk");
-    /*tableGenerate("kqK");
+    tableGenerate("kqK");
     tableGenerate("KRk");
     tableGenerate("krK");
-    tableGenerate("KQkr");*/
+    tableGenerate("KQkr");
    
     game_board.setFen(fen);
 }
@@ -103,9 +103,9 @@ void Game::tableGenerate(std::string mask/*, std::vector<EndGame>& result*/) {
 
     std::cout << "CheckMates: " << count_mates << std::endl;
 
-    for(unsigned int i = 0; i < count_positions; ++i) {
+    /*for(unsigned int i = 0; i < count_positions; ++i) {
         fwrite(&result[i], sizeof(EndGame), 1, file);
-    }
+    }*/
 
     fclose(file);
 
