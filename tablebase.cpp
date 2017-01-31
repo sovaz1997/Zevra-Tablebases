@@ -3,10 +3,10 @@
 void Game::baseGenerate() {
     std::string fen = game_board.getFen();
     tableGenerate("KQk");
-    tableGenerate("kqK");
+    /*tableGenerate("kqK");
     tableGenerate("KRk");
     tableGenerate("krK");
-    tableGenerate("KQkr");
+    tableGenerate("KQkr");*/
    
     game_board.setFen(fen);
 }
@@ -382,7 +382,11 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
         uint8_t figure = game_board.getFigure(k / 8, k % 8);
 
         if(!factor[figure].empty()) {
-            result += k * std::pow(64, factor[figure].top());
+            //if(factor[figure].top() > 0) {
+                result += k * ((uint64_t)1 << (uint64_t)(factor[figure].top() * 6));//std::pow(64, factor[figure].top());
+            //} else {
+            //    result += k;
+            //}
             factor[figure].pop();
             ++count_figures;
         }
@@ -405,7 +409,7 @@ uint64_t Game::getIndex(std::string mask) { //в расчете на то, чт�
     }
 
     if(!game_board.whiteMove) {
-        return result + std::pow(2, 6 * mask.size());
+        return result + (1 << 6 * mask.size());//std::pow(2, 6 * mask.size());
     }
 
     return result;

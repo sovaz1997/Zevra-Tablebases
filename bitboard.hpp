@@ -121,6 +121,9 @@ public:
 	std::multiset<uint64_t> gameHash;
 
 	bool whitePassantMade, blackPassantMade;
+
+	//experemental
+	std::vector<std::vector<uint8_t>> figure_map;
 };
 
 #endif

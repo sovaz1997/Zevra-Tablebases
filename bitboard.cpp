@@ -2,7 +2,7 @@
 
 BitBoard::BitBoard() : moveNumber(0), ruleNumber(0) {
 	preInit();
-	clear();
+	//clear();
 }
 
 BitBoard::~BitBoard() {}
@@ -1956,14 +1956,18 @@ bool BitBoard::blc() {
 }
 
 void BitBoard::zobristGenerator() {
-	std::random_device rd;
-	std::mt19937_64 gen(rd());
-	std::uniform_int_distribution<unsigned long long> dis;
+	//std::random_device rd;
+	//std::mt19937_64 gen(rd());
+	//std::uniform_int_distribution<unsigned long long> dis;
 
 	for(int i = 0; i < 32; ++i) {
 		for(int j = 0; j < BOARD_SIZE; ++j) {
 			for(int k = 0; k < BOARD_SIZE; ++k) {
-				zobrist[i][j][k] = dis(gen);
+				for(unsigned int s = 0; s < 64; ++s) {
+					int m = rand() % 2;
+					zobrist[i][j][k] += m * std::pow(2, s);//dis(gen);
+				}
+				//std::cout << zobrist[i][j][k] << std::endl;
 			}
 		}
 	}
